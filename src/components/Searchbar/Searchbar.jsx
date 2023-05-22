@@ -1,4 +1,4 @@
-import React, {Component} from "react";
+import {useState} from "react";
 import {toast} from 'react-toastify';
 import { FcSearch } from "react-icons/fc";
 import PropTypes from 'prop-types';
@@ -6,41 +6,39 @@ import 'react-toastify/dist/ReactToastify.css';
 import css from './Searchbar.module.css';
 
 
-class Searchbar extends Component {
+const Searchbar = ({onSearchSubmit}) => {
 
-  state = {
-    searchQuery: ''
-  }
-
-  handleChange = event => {
-    this.setState({searchQuery: event.currentTarget.value.toLowerCase() });
+  const [searchQuery, setSearchQuery] = useState('');
+  
+  const handleChange = event => {
+    setSearchQuery(event.currentTarget.value.toLowerCase());
     };
 
-  handleSubmit = event => {
+  const handleSubmit = event => {
     event.preventDefault();
 
-    if (this.state.searchQuery.trim() === '') {
+    if (searchQuery.trim() === '') {
       toast.error('Please, enter the search word', {
         position: "top-center",
         theme: "colored",
       });
       return;
     }
+  
 
-    this.props.onSearchSubmit(this.state.searchQuery);
-    this.setState({searchQuery: ''})
-    };
+    onSearchSubmit(searchQuery);
+    reset();
+}
 
-   reset = () => {
-    this.setState({searchQuery: ''})
+   const reset = () => {
+    setSearchQuery('')
  }
+  
  
-    render() {
-
     return (
 <header className={css.Searchbar}>
 
-  <form onSubmit={this.handleSubmit} className={css.SearchForm}>
+  <form onSubmit={handleSubmit} className={css.SearchForm}>
     <button type="submit" className={css.SearchFormButton}>
       <span> <FcSearch size={25} /> </span> 
     </button> 
@@ -52,15 +50,15 @@ class Searchbar extends Component {
       autoFocus
       placeholder="Search images and photos"
       name='searchQuery'
-      value={this.state.searchQuery}
-      onChange={this.handleChange}
+      value={searchQuery}
+      onChange={handleChange}
     />
   </form>
 </header>
 
     );
 }
-}
+
 
 Searchbar.propTypes = {
   onSubmit: PropTypes.func

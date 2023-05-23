@@ -1,84 +1,107 @@
-import React, {Component} from "react";
+//import React, {Component, useState} from "react";
+
+import React, {useState, useEffect} from 'react'
 import {ToastContainer} from 'react-toastify';
 import Searchbar from './Searchbar/Searchbar';
 import {ImageGallery} from './ImageGallery/ImageGallery';
 
 import {Loader} from './Loader/Loader';
 import {Button} from './Button/Button';
-import {Modal} from './Modal/Modal';
+//import {Modal} from './Modal/Modal';
 
 import { fetchImage } from "./Api/api";
 import { toast } from "react-toastify";
 
-export class App extends Component {
 
-  state = {
-    searchQuery: '',
-    page: 1,
-    loading: false,
-    images: [],
-    per_page: 12,
-    loadMore: false,
-    error: null,
-    showModal: false,
-    largeImageURL: 'largeImageURL',
-    status: 'idle'
-      }
+export const App = () => {
+const [searchQuery, setSearchQuery] = useState('');
+const [page, setPage] = useState(1);
+const [loading, setLoading] = useState(false);
+const [images, setImages] = useState([]);
+const [per_page, setPer_page] = useState(12);
+const [loadMore, setLoadMore] = useState(false);
+const [error, setError] = useState(null);
+//const [showModal, setShowmodal] = useState(false);
+//const [largeImageURL, setLargeImageURL] = useState('largeImageURL');
 
-  handleSearchSubmit = searchQuery => {
-    //console.log(searchQuery)
-    this.setState({
-      searchQuery,
-      images: [],
-      page: 1,
-      loadMore: false,
-      });
-  }
-
-  componentDidUpdate(prevProps, prevState) {
-    const { searchQuery, page } = this.state;
+useEffect(() => {
+  //if(prevState.searchQuery !== searchQuery || prevState.page !== page) {
+    getImages(searchQuery, page)
+    console.log(searchQuery)
+   }, [page, searchQuery]);
+   
     
-    if(prevState.searchQuery !== searchQuery || prevState.page !== page) {
-       this.getImages(searchQuery, page)
-       console.log(searchQuery)
-      }
-  };
+const getImages = async (query, page) => {
+ setLoading(!loading);
+ 
+ if (!query) {
+   return;
+ }    
 
-  getImages = async (query, page) => {
-    this.setState({ loading: true });
-    if (!query) {
-      return;
-    }    
-      try {
+   try {
       const { hits, totalHits } = await fetchImage(query, page);
       console.log(hits, totalHits);
 
-      if (hits.length === 0) {
-        toast.warning( 'Sorry, there are no images matching your search query. Please try again', {
-          position: "top-center",
-          theme: "colored",
-        })
-          }
-        
-      if (hits.length !== 0 && page === 1) {
-        toast.success(`Hooray!!! We found ${totalHits} images`, {
-          position: "top-left",
-          theme: "colored",
-        })
-          }
-        
-        this.setState(prevState => ({
-        images: [...prevState.images, ...hits],
-        loadMore: this.state.page < Math.ceil(totalHits / this.state.per_page),
-      }));
-    } catch (error) {                          // приймає меседж
-      this.setState({ error: error});          // створюємо новий об"єкт
-    } finally {
-      this.setState({ loading: false });
+   if (hits.length === 0) {
+     toast.warning( 'Sorry, there are no images matching your search query. Please try again', {
+       position: "top-center",
+       theme: "colored",
+     })
     }
-  };
+       
+     
+   if (hits.length !== 0 && page === 1) {
+     toast.success(`Hooray!!! We found ${totalHits} images`, {
+       position: "top-left",
+       theme: "colored",
+     })
+       }
+     
+     setImages(prevImages => [...prevImages, ...hits]);
+     setLoadMore(page < Math.ceil(totalHits / per_page))
+   
+ } catch (error) {                          
+   setError(error);          
+ } finally {
+  setLoading(loading);
+ }
+}
 
-  onLoadMore = () => {
+
+const handleSearchSubmit = searchQuery => {
+  //console.log(searchQuery)
+  setSearchQuery(searchQuery);
+  setImages([]);
+  setPage(1);
+  setLoadMore(false)
+};
+
+const onLoadMore = () => {
+  setPage(prevPage => (prevPage + 1))
+  }
+
+
+return (
+
+  <section>
+
+  <Searchbar onSearchSubmit={handleSearchSubmit}/>
+
+  <ToastContainer autoClose={2000}/>
+
+  {loading && <Loader /> } 
+
+  <ImageGallery images={images} />
+
+  {loadMore && <Button onLoadMore={onLoadMore} />} 
+
+  
+  </section>
+)
+}
+
+
+ /* onLoadMore = () => {
     this.setState(prevState => ({page: prevState.page + 1}))
     };
 
@@ -114,4 +137,4 @@ this.setState({showModal: true, largeImageURL: largeImageURL})
           
   );
 };
-}
+}*/

@@ -7,7 +7,7 @@ import {ImageGallery} from './ImageGallery/ImageGallery';
 
 import {Loader} from './Loader/Loader';
 import {Button} from './Button/Button';
-//import {Modal} from './Modal/Modal';
+import {Modal} from './Modal/Modal';
 
 import { fetchImage } from "./Api/api";
 import { toast } from "react-toastify";
@@ -21,8 +21,8 @@ const [images, setImages] = useState([]);
 const [per_page, setPer_page] = useState(12);
 const [loadMore, setLoadMore] = useState(false);
 const [error, setError] = useState(null);
-//const [showModal, setShowmodal] = useState(false);
-//const [largeImageURL, setLargeImageURL] = useState('largeImageURL');
+const [showModal, setShowmodal] = useState(false);
+const [largeImageURL, setLargeImageURL] = useState('largeImageURL');
 
 useEffect(() => {
   //if(prevState.searchQuery !== searchQuery || prevState.page !== page) {
@@ -61,7 +61,8 @@ const getImages = async (query, page) => {
      setLoadMore(page < Math.ceil(totalHits / per_page))
    
  } catch (error) {                          
-   setError(error);          
+   setError(error); 
+
  } finally {
   setLoading(loading);
  }
@@ -80,6 +81,15 @@ const onLoadMore = () => {
   setPage(prevPage => (prevPage + 1))
   }
 
+  const openModal = largeImageURL => {
+    setShowmodal(!showModal);
+    setLargeImageURL(largeImageURL)
+       };
+    
+  const closeModal = () => {
+    setShowmodal(!showModal);
+    };
+
 
 return (
 
@@ -91,9 +101,11 @@ return (
 
   {loading && <Loader /> } 
 
-  <ImageGallery images={images} />
+  <ImageGallery images={images} openModal={openModal} />
 
   {loadMore && <Button onLoadMore={onLoadMore} />} 
+
+  {showModal && <Modal largeImageURL={largeImageURL} onClose={closeModal} />}
 
   
   </section>

@@ -5,32 +5,30 @@ import './Modal.css';
 
 const modalRoot = document.querySelector('#modal-root');
 
-
 export const Modal = ({onClose, largeImageURL}) => {
 
-    
-    
     const handleBackdropClick = e => {
         if (e.currentTarget === e.target) {
             console.log('нужно срочно закрыть модалку')
             onClose();
         }
-    }
+    };
 
     useEffect(() => {
+
         const handleKeyDown = e => {
         if (e.code === 'Escape') {
             console.log('нужно закрыть модалку')
             onClose();
         }
     };
+
         window.addEventListener('keydown', handleKeyDown)
         return() => {
                window.removeEventListener('keydown', handleKeyDown)
         }
-    }, [onClose])
+    }, [onClose]);
     
-
 
   return createPortal (
 

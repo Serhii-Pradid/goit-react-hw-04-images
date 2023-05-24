@@ -14,6 +14,7 @@ import { toast } from "react-toastify";
 
 
 export const App = () => {
+  
 const [searchQuery, setSearchQuery] = useState('');
 const [page, setPage] = useState(1);
 const [loading, setLoading] = useState(false);
@@ -24,20 +25,15 @@ const [showModal, setShowmodal] = useState(false);
 const [largeImageURL, setLargeImageURL] = useState('largeImageURL');
 const per_page = 12;
 
-
 useEffect(() => {
-  
-    getImages(searchQuery, page);
-    console.log(searchQuery)
-   }, [searchQuery, page]);
 
-   const getImages = async (searchQuery, page) => {
- 
+  async function getImages() {
+
  if (!searchQuery) {
    return;
- }    
+ }  
 
-setLoading(!loading);
+setLoading(loading=>!loading);
  
    try {
       const { hits, totalHits } = await fetchImage(searchQuery, page);
@@ -49,8 +45,7 @@ setLoading(!loading);
        theme: "colored",
      })
     }
-       
-     
+            
    if (hits.length !== 0 && page === 1) {
      toast.success(`Hooray!!! We found ${totalHits} images`, {
        position: "top-left",
@@ -64,10 +59,15 @@ setLoading(!loading);
  } catch (errors) {                          
    setError({error}); 
  } finally {
-  setLoading(loading);
+  setLoading(false);
  }
 };
-  
+
+  getImages();
+  console.log(searchQuery)
+ }, [error, page, searchQuery]);
+
+
 const handleSearchSubmit = searchQuery => {
   //console.log(searchQuery)
   setSearchQuery(searchQuery);
